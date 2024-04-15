@@ -1,106 +1,84 @@
 // App.js
-import React, { useState, useEffect, createContext } from 'react';
-import { View, TextInput, Text, Button, StyleSheet } from 'react-native';
-import ExpenseForm from './ExpenseForm';
-import DailyExpenseList from './ExpenseList';
-import MonthlyExpenseList from './TotalExpenseList';
-import expense_data from './expense_data';
-import { ExpenseDataContext } from './context';
+import React, { useState, useEffect, createContext } from "react";
+import { View, TextInput, Text, StyleSheet, Pressable } from "react-native";
+import ExpenseForm from "./components/ExpenseForm";
+import ExpenseSummaryList from "./components/ExpenseSummary";
+import ExpenseList from "./components/ExpenseList";
+import UserList from "./components/UserList";
+import Header from "./components/Header";
+// import GoogleAuthComponent from "./Auth";
 
+import { NavigationContainer } from "@react-navigation/native";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import ExpenseChart from "./components/ExpenseChart";
+
+const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+function TabNavigator() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="ExpenseForm"
+        component={ExpenseForm}
+        options={{
+          tabBarLabel: "Add Expense",
+        }}
+      />
+      <Tab.Screen
+        name="Expense Summary"
+        component={ExpenseSummaryList}
+        options={{
+          tabBarLabel: "Show Expense Summary",
+        }}
+      />
+      <Tab.Screen
+        name="Expense List"
+        component={ExpenseList}
+        options={{
+          tabBarLabel: "Show Expense List",
+        }}
+      />
+      <Tab.Screen
+        name="UserList"
+        component={UserList}
+        options={{
+          tabBarLabel: "Show Users",
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
 
 const App = () => {
-  const [expenses, setExpenses] = useState([]);
-
-  const addExpense = (date, remarks, amount, selectedTeams) => {
-    let equal_split = selectedTeams.length === 0 ? 0 : amount / selectedTeams.length;
-  
-    const newExpense = {
-      date: date,
-      remarks: remarks,
-      amount: amount,
-      users: selectedTeams,
-      split: equal_split,
-      paid_by: "Kanu"
-    };
-  
-    setExpenses(prevExpenses => [...prevExpenses, newExpense]);
-  };
-  
-  const [userExpense, setUserExpense] = useState(null);
-  const [dailyExpense, setDailyExpense] = useState([]);
-  
-  useEffect(() => {
-    if (!expenseData) return;
-  
-    const userExpenses = {};
-    const today = new Date().toISOString().split('T')[0];
-    for (const item of expenseData.users) {
-      userExpenses[item] = expenses.filter(expense => expense.users.includes(item) || expense.paid_by === item || expense.date==today   );
-    }
-
-    let final_expenses = [];
-    for (const user in userExpenses) {
-      const _expenses = userExpenses[user];
-      let totalExpense = 0;
-      let totalPaid = 0;
-    
-      _expenses.forEach(expense => {
-        if (expense.paid_by === user) {
-          totalPaid += parseFloat(expense.amount);
-        }
-        if (expense.users.includes(user)) {
-          totalExpense += parseFloat(expense.split);
-        }
-      });
-    
-      final_expenses.push({
-        user: user,
-        totalExpense: totalExpense,
-        totalPaid: totalPaid
-      });
-      console.log("Final Expenses: ", final_expenses);
-      setDailyExpense(final_expenses);
-    }
-
-  }, [expenses, expenseData]);
-
-  const [expenseData, setExpenseData] = useState(null);
-
-  useEffect(() => {
-    setExpenseData(expense_data);
-  });
-
-
   return (
-    <ExpenseDataContext.Provider value={{ expenseData, addExpense }}>
     <View style={styles.app}>
-      <Text style={styles.header}>Expense Form</Text>
-      <Text style={styles.header}>Expense Form</Text>
-      <ExpenseForm addExpense={addExpense} />
-      {
-        expenseData &&
-      
-      <>
-      <DailyExpenseList expenses={dailyExpense}/>
-      {/* <MonthlyExpenseList /> */}
-      </>
-      }
+      <NavigationContainer>
+        <Drawer.Navigator
+          screenOptions={{
+            header: ({ navigation }) => <Header navigation={navigation} />,
+          }}
+        >
+          <Drawer.Screen name="Home" component={TabNavigator} />
+          <Drawer.Screen name="Users" component={UserList} />
+        </Drawer.Navigator>
+      </NavigationContainer>
     </View>
-    </ExpenseDataContext.Provider>
   );
 };
 
 const styles = StyleSheet.create({
   app: {
-    flex: 1, 
-    justifyContent: 'center',
+    flex: 1,
+    justifyContent: "center",
   },
   header: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
-    textAlign: 'center',
-  }
+    textAlign: "center",
+  },
 });
 
 export default App;
