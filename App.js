@@ -11,7 +11,7 @@ import Header from "./components/Header";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import ExpenseChart from "./components/ExpenseChart";
+import ExpenseSummaryChart from "./components/ExpenseChart";
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -45,6 +45,13 @@ function TabNavigator() {
         component={UserList}
         options={{
           tabBarLabel: "Show Users",
+        }}
+      />
+      <Tab.Screen
+        name="Expense Summary Chart"
+        component={ExpenseSummaryChart}
+        options={{
+          tabBarLabel: "Show Expense Analysis",
         }}
       />
     </Tab.Navigator>
