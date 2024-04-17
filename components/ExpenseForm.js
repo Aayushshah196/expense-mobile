@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import {
   View,
+  Picker,
   TextInput,
   Text,
   Button,
@@ -11,7 +12,7 @@ import {
 import { useRoute } from "@react-navigation/native";
 import MultiSelect from "react-native-multiple-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { get_user_list, create_expense_item } from "../requests";
+import { get_user_list, create_expense_item, getLedgerList } from "../requests";
 
 const ExpenseForm = () => {
   const [remarks, setRemarks] = useState("");
@@ -47,7 +48,6 @@ const ExpenseForm = () => {
 
   const handleSubmit = async () => {
     setUploading(true);
-    console.log("Submitting form");
     const split_amount =
       selectedUsers.length === 0 ? 0 : amount / selectedUsers.length;
 
@@ -58,6 +58,7 @@ const ExpenseForm = () => {
       users: selectedUsers,
       split: split_amount,
       paid_by: currentUser,
+      ledger_id: selectedLedger,
     };
     await create_expense_item(newExpense);
     setUploading(false);
@@ -92,6 +93,28 @@ const ExpenseForm = () => {
     fetchUsers();
   }, []);
 
+  const [ledgers, setLedgers] = useState([]);
+  const [selectedLedger, setSelectedLedger] = useState("");
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      console.log("fetching users");
+      res = await getLedgerList();
+      if (res.success) {
+        setLedgers(res.data);
+        if (res.data.length > 0) {
+          setSelectedLedger(res.data[0].id);
+        }
+        setLoading(false);
+      } else {
+        setLoading(false);
+        setError(res.error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
   if (loading | uploading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -115,6 +138,16 @@ const ExpenseForm = () => {
         )}
       </View>
       <Text style={styles.paragraph}>{date}</Text>
+      <Picker
+        selectedValue={selectedLedger}
+        onValueChange={(itemValue, itemIndex) => setSelectedLedger(itemValue)}
+        style={styles.input}
+      >
+        {ledgers &&
+          ledgers.map((ledger, index) => (
+            <Picker.Item key={index} label={ledger.name} value={ledger.id} />
+          ))}
+      </Picker>
       <TextInput
         style={styles.input}
         placeholder="Remarks"
@@ -147,9 +180,11 @@ const ExpenseForm = () => {
           displayKey="name"
           searchInputStyle={{ color: "#CCC" }}
           submitButtonColor="#CCC"
+          style={styles.input}
         />
       )}
       <Pressable title="Add Expense" onPress={handleSubmit} />
+      <Button title="Add Expense" onPress={handleSubmit} />
     </View>
   );
 };
@@ -168,6 +203,14 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  picker: {
+    height: 40,
+    width: "100%",
     borderColor: "gray",
     borderWidth: 1,
     marginBottom: 10,
