@@ -27,6 +27,12 @@ const Header = ({ navigation }) => {
     } else if (option === "Option 2") {
       // Navigate to UserList page if Option 2 is clicked
       navigation.navigate("UserList");
+    } else if (option === "Option 3") {
+      // Navigate to UserList page if Option 2 is clicked
+      navigation.navigate("Show Ledgers");
+    } else if (option === "Option 4") {
+      // Navigate to UserList page if Option 2 is clicked
+      navigation.navigate("Expense Summary Chart");
     } else {
       // Close the menu if other options are clicked
       setIsMenuOpen(false);
@@ -51,19 +57,25 @@ const Header = ({ navigation }) => {
             style={styles.menuItem}
             onPress={() => handleOptionClick("Option 1")}
           >
-            <Text>Option 1</Text>
+            <Text>Popup Modal</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.menuItem}
             onPress={() => handleOptionClick("Option 2")}
           >
-            <Text>Option 2</Text>
+            <Text>UserList</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.menuItem}
             onPress={() => handleOptionClick("Option 3")}
           >
-            <Text>Option 3</Text>
+            <Text>Ledgers List</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => handleOptionClick("Option 4")}
+          >
+            <Text>Expense Analytics</Text>
           </TouchableOpacity>
         </View>
       )}

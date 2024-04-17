@@ -5,16 +5,23 @@ import ExpenseForm from "./components/ExpenseForm";
 import ExpenseSummaryList from "./components/ExpenseSummary";
 import ExpenseList from "./components/ExpenseList";
 import UserList from "./components/UserList";
+import LedgerForm from "./components/header/LedgerForm";
 import Header from "./components/Header";
 // import GoogleAuthComponent from "./Auth";
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createStackNavigator } from "@react-navigation/stack";
 import ExpenseSummaryChart from "./components/ExpenseChart";
+import LedgerList from "./components/header/LedgerList";
+// import Ledger from "./components/Ledgers";
+// import AccordionMenu from "./components/AccordianMenu";
+// import DrawerContent from "./components/DrawerContent";
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator();
 
 function TabNavigator() {
   return (
@@ -41,11 +48,23 @@ function TabNavigator() {
         }}
       />
       <Tab.Screen
-        name="UserList"
-        component={UserList}
+        name="Ledger Form"
+        component={LedgerForm}
         options={{
-          tabBarLabel: "Show Users",
+          tabBarLabel: "Add New Ledger",
         }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+function HomeStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Home"
+        component={TabNavigator}
+        options={{ headerShown: false }}
       />
       <Tab.Screen
         name="Expense Summary Chart"
@@ -54,7 +73,21 @@ function TabNavigator() {
           tabBarLabel: "Show Expense Analysis",
         }}
       />
-    </Tab.Navigator>
+      <Tab.Screen
+        name="UserList"
+        component={UserList}
+        options={{
+          tabBarLabel: "Show Users",
+        }}
+      />
+      <Tab.Screen
+        name="Show Ledgers"
+        component={LedgerList}
+        options={{
+          tabBarLabel: "Show Ledgers",
+        }}
+      />
+    </Stack.Navigator>
   );
 }
 
@@ -67,7 +100,7 @@ const App = () => {
             header: ({ navigation }) => <Header navigation={navigation} />,
           }}
         >
-          <Drawer.Screen name="Home" component={TabNavigator} />
+          <Drawer.Screen name="Home" component={HomeStack} />
           <Drawer.Screen name="Users" component={UserList} />
         </Drawer.Navigator>
       </NavigationContainer>
