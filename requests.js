@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL =
-  "https://4ce3-2404-7c00-44-e39d-9d0-b903-609e-5d9b.ngrok-free.app";
+const BASE_URL = "http://localhost:5000";
+// "https://809d-2404-7c00-44-a19a-8bf7-e542-9a0f-ef6b.ngrok-free.app";
 
 export const get_user_list = async () => {
   try {
@@ -43,6 +43,35 @@ export const create_expense_item = async (expenseData) => {
     return { success: true, data: data };
   } catch (error) {
     console.error("Error creating expense item:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const create_ledger = async (ledgerData) => {
+  try {
+    const URL = `${BASE_URL}/ledgers/`;
+    const response = await axios.post(URL, ledgerData, {
+      withCredentials: true,
+    });
+    const data = response.data;
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Error creating ledger item:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getLedgerList = async () => {
+  try {
+    const URL = `${BASE_URL}/ledgers/`;
+    const response = await axios(URL, {
+      method: "GET",
+      withCredentials: true,
+    });
+    const data = response.data;
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Error fetching ledgers:", error.message);
     return { success: false, error: error.message };
   }
 };
