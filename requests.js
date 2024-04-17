@@ -47,6 +47,19 @@ export const create_expense_item = async (expenseData) => {
   }
 };
 
+export const deleteExpense = async (expenseId) => {
+  try {
+    const URL = `${BASE_URL}/expenses/${expenseId}/`;
+    const response = await axios.delete(URL, {
+      withCredentials: true,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting expense item:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
 export const create_ledger = async (ledgerData) => {
   try {
     const URL = `${BASE_URL}/ledgers/`;
@@ -72,6 +85,19 @@ export const getLedgerList = async () => {
     return { success: true, data: data };
   } catch (error) {
     console.error("Error fetching ledgers:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const deleteLedger = async (ledgerId) => {
+  try {
+    const URL = `${BASE_URL}/ledgers/${ledgerId}/`;
+    const response = await axios.delete(URL, {
+      withCredentials: true,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting ledger item:", error.message);
     return { success: false, error: error.message };
   }
 };
@@ -107,8 +133,4 @@ export const getExpenseSummary = async (start_date, end_date) => {
     console.error("Error fetching expenses:", error.message);
     return { success: false, error: error.message };
   }
-};
-
-export const deleteExpense = async (index) => {
-  return 1;
 };

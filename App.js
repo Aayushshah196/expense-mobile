@@ -1,11 +1,11 @@
 // App.js
 import React, { useState, useEffect, createContext } from "react";
 import { View, TextInput, Text, StyleSheet, Pressable } from "react-native";
-import ExpenseForm from "./components/ExpenseForm";
-import ExpenseSummaryList from "./components/ExpenseSummary";
-import ExpenseList from "./components/ExpenseList";
+import ExpenseForm from "./components/expense/ExpenseForm";
+import ExpenseSummaryList from "./components/expense/ExpenseSummary";
+import ExpenseList from "./components/expense/ExpenseList";
 import UserList from "./components/UserList";
-import LedgerForm from "./components/header/LedgerForm";
+import LedgerForm from "./components/ledger/LedgerForm";
 import Header from "./components/Header";
 // import GoogleAuthComponent from "./Auth";
 
@@ -13,8 +13,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import ExpenseSummaryChart from "./components/ExpenseChart";
-import LedgerList from "./components/header/LedgerList";
+import ExpenseSummaryChart from "./components/expense/ExpenseChart";
+import LedgerList from "./components/ledger/LedgerList";
 // import Ledger from "./components/Ledgers";
 // import AccordionMenu from "./components/AccordianMenu";
 // import DrawerContent from "./components/DrawerContent";
