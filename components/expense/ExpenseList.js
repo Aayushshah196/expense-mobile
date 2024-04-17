@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import LedgerCard from "../LedgerCard";
-import { getLedgerList } from "../../requests";
+import ExpenseCard from "./ExpenseCard";
+import { getExpenseList, deleteExpense } from "../../requests";
 import { useNavigation } from "@react-navigation/native";
+import ExpenseForm from "./ExpenseForm";
 import {
   View,
   StyleSheet,
@@ -11,17 +12,17 @@ import {
   Alert,
 } from "react-native";
 
-const LedgerList = () => {
+const ExpenseList = () => {
   const [loading, setLoading] = useState(true);
-  const [ledgerList, setLedgerList] = useState([]);
+  const [expenseList, setExpenseList] = useState([]);
   const [error, setError] = useState("");
   const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchLedgerList = async () => {
-      res = await getLedgerList();
+    const fetchExpenseList = async () => {
+      res = await getExpenseList();
       if (res.success) {
-        setLedgerList(res.data);
+        setExpenseList(res.data);
         setLoading(false);
       } else {
         setLoading(false);
@@ -29,11 +30,19 @@ const LedgerList = () => {
       }
     };
 
-    fetchLedgerList();
+    fetchExpenseList();
   }, []);
 
   const handleEditExpense = (expense) => {
-    console.log("Edit Ledger", ledger);
+    console.log("Edit expense", expense);
+    navigation.navigate("ExpenseForm", {
+      amount: expense.amount,
+      date: expense.date,
+      remarks: expense.remarks,
+      users: expense.users,
+      split: expense.split,
+      id: expense.id,
+    });
   };
 
   const handleDeleteExpense = async (expenseId) => {
@@ -69,13 +78,15 @@ const LedgerList = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={ledgerList}
+        data={expenseList}
         keyExtractor={(item, index) => index}
         renderItem={({ item }) => (
-          <LedgerCard
-            ledgerName={item.name}
-            activeUsers={item.live_users}
-            invitedUsers={item.invited_users}
+          <ExpenseCard
+            date={item.date}
+            remarks={item.remarks}
+            split={item.split}
+            amount={item.amount}
+            users={item.users}
             onEdit={() => handleEditExpense(item)}
             onDelete={() => handleDeleteExpense(item.id)}
           />
@@ -102,4 +113,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LedgerList;
+export default ExpenseList;

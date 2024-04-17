@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   FlatList,
 } from "react-native";
-import { getExpenseSummary } from "../requests";
+import { getExpenseSummary } from "../../requests";
 
 const ExpenseSummaryList = () => {
   const [loading, setLoading] = useState(true);

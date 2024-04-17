@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import ExpenseCard from "./ExpenseCard";
-import { getExpenseList, deleteExpense } from "../requests";
+import LedgerCard from "./LedgerCard";
+import { getLedgerList, deleteLedger } from "../../requests";
 import { useNavigation } from "@react-navigation/native";
-import ExpenseForm from "./ExpenseForm";
 import {
   View,
   StyleSheet,
@@ -12,17 +11,17 @@ import {
   Alert,
 } from "react-native";
 
-const ExpenseList = () => {
+const LedgerList = () => {
   const [loading, setLoading] = useState(true);
-  const [expenseList, setExpenseList] = useState([]);
+  const [ledgerList, setLedgerList] = useState([]);
   const [error, setError] = useState("");
   const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchExpenseList = async () => {
-      res = await getExpenseList();
+    const fetchLedgerList = async () => {
+      res = await getLedgerList();
       if (res.success) {
-        setExpenseList(res.data);
+        setLedgerList(res.data);
         setLoading(false);
       } else {
         setLoading(false);
@@ -30,32 +29,23 @@ const ExpenseList = () => {
       }
     };
 
-    fetchExpenseList();
+    fetchLedgerList();
   }, []);
 
   const handleEditExpense = (expense) => {
-    console.log("Edit expense", expense);
-    navigation.navigate("ExpenseForm", {
-      amount: expense.amount,
-      date: expense.date,
-      remarks: expense.remarks,
-      users: expense.users,
-      split: expense.split,
-      id: expense.id,
-    });
+    console.log("Edit Ledger", ledger);
   };
 
-  const handleDeleteExpense = async (expenseId) => {
+  const handleDeleteExpense = async (ledgerId) => {
     try {
       // Call delete expense API function
-      await deleteExpense(expenseId);
+      await deleteLedger(ledgerId);
+      Alert.alert("Error", "deleted ledger");
       // Update expense list after deletion
-      const updatedList = expenseList.filter(
-        (expense) => expense.id !== expenseId
-      );
-      setExpenseList(updatedList);
+      const updatedList = ledgerList.filter((ledger) => ledger.id !== ledgerId);
+      setLedgerList(updatedList);
     } catch (error) {
-      Alert.alert("Error", "Failed to delete expense");
+      Alert.alert("Error", "Failed to delete ledger");
     }
   };
 
@@ -78,15 +68,13 @@ const ExpenseList = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={expenseList}
+        data={ledgerList}
         keyExtractor={(item, index) => index}
         renderItem={({ item }) => (
-          <ExpenseCard
-            date={item.date}
-            remarks={item.remarks}
-            split={item.split}
-            amount={item.amount}
-            users={item.users}
+          <LedgerCard
+            ledgerName={item.name}
+            activeUsers={item.live_users}
+            invitedUsers={item.invited_users}
             onEdit={() => handleEditExpense(item)}
             onDelete={() => handleDeleteExpense(item.id)}
           />
@@ -113,4 +101,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ExpenseList;
+export default LedgerList;
