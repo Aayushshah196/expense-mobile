@@ -1,8 +1,9 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000";
-// "https://809d-2404-7c00-44-a19a-8bf7-e542-9a0f-ef6b.ngrok-free.app";
-
+// const BASE_URL = "http://localhost:5000";
+const BASE_URL =
+  "https://ba49-2404-7c00-41-8f0c-5ee-da09-e0de-206d.ngrok-free.app";
+// "react-native-web": "~0.19.6"
 export const get_user_list = async () => {
   try {
     const URL = `${BASE_URL}/users/`;

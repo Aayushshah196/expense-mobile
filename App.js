@@ -31,6 +31,7 @@ function TabNavigator() {
         component={ExpenseForm}
         options={{
           tabBarLabel: "Add Expense",
+          headerShown: false,
         }}
       />
       <Tab.Screen
@@ -38,6 +39,7 @@ function TabNavigator() {
         component={ExpenseSummaryList}
         options={{
           tabBarLabel: "Show Expense Summary",
+          headerShown: false,
         }}
       />
       <Tab.Screen
@@ -45,6 +47,7 @@ function TabNavigator() {
         component={ExpenseList}
         options={{
           tabBarLabel: "Show Expense List",
+          headerShown: false,
         }}
       />
       <Tab.Screen
@@ -52,6 +55,7 @@ function TabNavigator() {
         component={LedgerForm}
         options={{
           tabBarLabel: "Add New Ledger",
+          headerShown: false,
         }}
       />
     </Tab.Navigator>
