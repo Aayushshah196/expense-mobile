@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import ExpenseCard from "./ExpenseCard";
 import { getExpenseList, deleteExpense } from "../../requests";
 import { useNavigation } from "@react-navigation/native";
-import ExpenseForm from "./ExpenseForm";
 import {
   View,
   StyleSheet,
@@ -36,6 +35,7 @@ const ExpenseList = () => {
   const handleEditExpense = (expense) => {
     console.log("Edit expense", expense);
     navigation.navigate("ExpenseForm", {
+      ledger_id: expense?.ledger_id || "",
       amount: expense.amount,
       date: expense.date,
       remarks: expense.remarks,
@@ -82,6 +82,7 @@ const ExpenseList = () => {
         keyExtractor={(item, index) => index}
         renderItem={({ item }) => (
           <ExpenseCard
+            ledger_id={item?.ledger_id || ""}
             date={item.date}
             remarks={item.remarks}
             split={item.split}

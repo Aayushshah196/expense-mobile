@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 const ExpenseCard = ({
+  ledger_id,
   date,
   remarks,
   split,
@@ -12,6 +13,7 @@ const ExpenseCard = ({
 }) => {
   return (
     <View style={styles.card}>
+      <Text style={styles.date}>{ledger_id}</Text>
       <Text style={styles.date}>{date}</Text>
       <Text style={styles.remarks}>{remarks}</Text>
       <Text style={styles.amount}>Amount: {split}</Text>
