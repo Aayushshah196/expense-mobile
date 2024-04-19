@@ -1,67 +1,54 @@
-// App.js
-import React, { useState, useEffect, createContext } from "react";
-import { View, TextInput, Text, StyleSheet, Pressable } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import { View, StyleSheet, Text } from "react-native";
 import ExpenseForm from "./components/expense/ExpenseForm";
 import ExpenseSummaryList from "./components/expense/ExpenseSummary";
 import ExpenseList from "./components/expense/ExpenseList";
 import UserList from "./components/UserList";
 import LedgerForm from "./components/ledger/LedgerForm";
 import Header from "./components/Header";
-// import GoogleAuthComponent from "./Auth";
-
+import ExpenseSummaryChart from "./components/expense/ExpenseChart";
+import LedgerList from "./components/ledger/LedgerList";
+import LoginPage from "./components/auth/login";
+import SignUpPage from "./components/auth/signup";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import ExpenseSummaryChart from "./components/expense/ExpenseChart";
-import LedgerList from "./components/ledger/LedgerList";
-// import Ledger from "./components/Ledgers";
-// import AccordionMenu from "./components/AccordianMenu";
-// import DrawerContent from "./components/DrawerContent";
+import { AuthProvider, AuthContext } from "./context/AuthContext";
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
+// Define Tab Navigator
 function TabNavigator() {
   return (
     <Tab.Navigator>
       <Tab.Screen
         name="ExpenseForm"
         component={ExpenseForm}
-        options={{
-          tabBarLabel: "Add Expense",
-          headerShown: false,
-        }}
+        options={{ tabBarLabel: "Add Expense" }}
       />
       <Tab.Screen
         name="Expense Summary"
         component={ExpenseSummaryList}
-        options={{
-          tabBarLabel: "Show Expense Summary",
-          headerShown: false,
-        }}
+        options={{ tabBarLabel: "Expense Summary" }}
       />
       <Tab.Screen
         name="Expense List"
         component={ExpenseList}
-        options={{
-          tabBarLabel: "Show Expense List",
-          headerShown: false,
-        }}
+        options={{ tabBarLabel: "Expense List" }}
       />
       <Tab.Screen
         name="Ledger Form"
         component={LedgerForm}
-        options={{
-          tabBarLabel: "Add New Ledger",
-          headerShown: false,
-        }}
+        options={{ tabBarLabel: "Add Ledger" }}
       />
     </Tab.Navigator>
   );
 }
 
+// Define Home Stack (protected after login)
 function HomeStack() {
   return (
     <Stack.Navigator>
@@ -70,58 +57,77 @@ function HomeStack() {
         component={TabNavigator}
         options={{ headerShown: false }}
       />
-      <Tab.Screen
+      <Stack.Screen
         name="Expense Summary Chart"
         component={ExpenseSummaryChart}
-        options={{
-          tabBarLabel: "Show Expense Analysis",
-        }}
+        options={{ title: "Expense Chart" }}
       />
-      <Tab.Screen
+      <Stack.Screen
         name="UserList"
         component={UserList}
-        options={{
-          tabBarLabel: "Show Users",
-        }}
+        options={{ title: "Users" }}
       />
-      <Tab.Screen
+      <Stack.Screen
         name="Show Ledgers"
         component={LedgerList}
-        options={{
-          tabBarLabel: "Show Ledgers",
-        }}
+        options={{ title: "Ledgers" }}
       />
     </Stack.Navigator>
   );
 }
 
-const App = () => {
+// Define Login and Signup Stack
+function AuthStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="LoginPage"
+        component={LoginPage}
+        options={{ title: "Login" }}
+      />
+      <Stack.Screen
+        name="SignUpPage"
+        component={SignUpPage}
+        options={{ title: "Sign Up" }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+// App component to conditionally render navigation based on authentication status
+const Main = () => {
+  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+
   return (
     <View style={styles.app}>
       <NavigationContainer>
-        <Drawer.Navigator
-          screenOptions={{
-            header: ({ navigation }) => <Header navigation={navigation} />,
-          }}
-        >
-          <Drawer.Screen name="Home" component={HomeStack} />
-          <Drawer.Screen name="Users" component={UserList} />
-        </Drawer.Navigator>
+        {isAuthenticated ? (
+          <Drawer.Navigator
+            screenOptions={{
+              header: ({ navigation }) => <Header navigation={navigation} />,
+            }}
+          >
+            <Drawer.Screen name="HomeScreen" component={HomeStack} />
+            <Drawer.Screen name="Users" component={UserList} />
+          </Drawer.Navigator>
+        ) : (
+          <AuthStack />
+        )}
       </NavigationContainer>
     </View>
   );
 };
 
+const App = () => {
+  return (
+    <AuthProvider>
+      <Main />
+    </AuthProvider>
+  );
+};
 const styles = StyleSheet.create({
   app: {
     flex: 1,
-    justifyContent: "center",
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    textAlign: "center",
   },
 });
 
