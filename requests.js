@@ -2,7 +2,7 @@ import axios from "axios";
 
 // const BASE_URL = "http://localhost:5000";
 const BASE_URL =
-  "https://ba49-2404-7c00-41-8f0c-5ee-da09-e0de-206d.ngrok-free.app";
+  "https://20b2-2404-7c00-44-551e-6329-664c-f3db-7b96.ngrok-free.app";
 // "react-native-web": "~0.19.6"
 export const get_user_list = async () => {
   try {
@@ -132,6 +132,38 @@ export const getExpenseSummary = async (start_date, end_date) => {
     return { success: true, data: data };
   } catch (error) {
     console.error("Error fetching expenses:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const createNewUser = async (userData) => {
+  try {
+    const URL = `${BASE_URL}/users/signup/`;
+    const response = await axios.post(URL, userData, {
+      withCredentials: true,
+    });
+    console.log("Response:", response);
+    const data = response.data;
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Error creating user:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const authenticateUser = async (userData) => {
+  try {
+    const URL = `${BASE_URL}/users/login/`;
+    const response = await axios.post(URL, userData, {
+      withCredentials: true,
+    });
+    let success = true;
+    console.log("Response:", response);
+    const data = response.data.data;
+    success = response.data.status;
+    return { success: success, data: data };
+  } catch (error) {
+    console.error("Error creating user:", error.message);
     return { success: false, error: error.message };
   }
 };
