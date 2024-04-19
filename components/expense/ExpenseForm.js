@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import {
   View,
-  Picker,
   TextInput,
   Text,
   Button,
@@ -9,6 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import { useRoute } from "@react-navigation/native";
 import MultiSelect from "react-native-multiple-select";
 import DateTimePicker from "@react-native-community/datetimepicker";

@@ -49,6 +49,7 @@ const ExpenseList = () => {
     try {
       // Call delete expense API function
       await deleteExpense(expenseId);
+      Alert.alert("Error", "Successful to delete expense");
       // Update expense list after deletion
       const updatedList = expenseList.filter(
         (expense) => expense.id !== expenseId
