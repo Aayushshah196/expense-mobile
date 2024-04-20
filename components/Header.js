@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Modal,
   Button,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext";
@@ -13,40 +14,31 @@ import { AuthContext } from "../context/AuthContext";
 const Header = ({ navigation }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+  const { performLogout } = useContext(AuthContext);
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+    setIsMenuOpen((prevState) => !prevState);
   };
 
   const handleOptionClick = (option) => {
-    // Handle option click action here
-    // For example, you can navigate to a new page based on the option selected
-    console.log("Option clicked:", option);
-    // Open popup if Option 1 is clicked
-    if (option === "Option 1") {
+    if (option === "Popup Modal") {
       setIsPopupOpen(true);
-    } else if (option === "Option 2") {
-      // Navigate to UserList page if Option 2 is clicked
-      navigation.navigate("UserList");
-    } else if (option === "Option 3") {
-      // Navigate to UserList page if Option 2 is clicked
-      navigation.navigate("Show Ledgers");
-    } else if (option === "Option 4") {
-      // Navigate to UserList page if Option 2 is clicked
-      navigation.navigate("Expense Summary Chart");
     } else if (option === "Logout") {
-      // Navigate to UserList page if Option 2 is clicked
-      setIsAuthenticated(false);
-      // navigation.navigate("Expense Summary Chart");
+      const status = performLogout();
     } else {
-      // Close the menu if other options are clicked
-      setIsMenuOpen(false);
+      navigation.navigate(option);
     }
+
+    // Close the menu after an option is clicked
+    setIsMenuOpen(false);
   };
 
   const closePopup = () => {
     setIsPopupOpen(false);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
   };
 
   return (
@@ -57,40 +49,37 @@ const Header = ({ navigation }) => {
       <TouchableOpacity onPress={toggleMenu}>
         <Ionicons name="ellipsis-vertical" size={30} color="black" />
       </TouchableOpacity>
+
+      {/* Invisible touchable to close menu when clicked outside */}
+      {isMenuOpen && (
+        <TouchableWithoutFeedback onPress={closeMenu}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+      )}
+
       {isMenuOpen && (
         <View style={styles.menuContainer}>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => handleOptionClick("Option 1")}
-          >
-            <Text>Popup Modal</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => handleOptionClick("Option 2")}
-          >
-            <Text>UserList</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => handleOptionClick("Option 3")}
-          >
-            <Text>Ledgers List</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => handleOptionClick("Option 4")}
-          >
-            <Text>Expense Analytics</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => handleOptionClick("Logout")}
-          >
-            <Text>Log out</Text>
-          </TouchableOpacity>
+          <MenuItem
+            text="Popup Modal"
+            onPress={() => handleOptionClick("Popup Modal")}
+          />
+          <MenuItem
+            text="UserList"
+            onPress={() => handleOptionClick("UserList")}
+          />
+          <MenuItem
+            text="Ledgers List"
+            onPress={() => handleOptionClick("Show Ledgers")}
+          />
+          <MenuItem
+            text="Expense Analytics"
+            onPress={() => handleOptionClick("Expense Summary Chart")}
+          />
+          <MenuItem text="Logout" onPress={() => handleOptionClick("Logout")} />
         </View>
       )}
+
+      {/* Popup Modal */}
       <Modal visible={isPopupOpen} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.popup}>
@@ -103,6 +92,13 @@ const Header = ({ navigation }) => {
   );
 };
 
+// MenuItem component for better separation of concerns
+const MenuItem = ({ text, onPress }) => (
+  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+    <Text>{text}</Text>
+  </TouchableOpacity>
+);
+
 const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
@@ -113,9 +109,17 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     marginTop: 10,
   },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "transparent",
+  },
   menuContainer: {
     position: "absolute",
-    top: 40, // Adjust as needed
+    top: 50,
     right: 10,
     backgroundColor: "#fff",
     borderRadius: 5,
@@ -130,6 +134,8 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
   },
   modalContainer: {
     flex: 1,
