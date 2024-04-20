@@ -16,6 +16,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 import LedgerDetail from "./components/ledger/LedgerDetails";
+import InvitationsList from "./components/ledger/InvitationScreen";
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -77,6 +78,11 @@ function HomeStack() {
         name="Ledger Detail"
         component={LedgerDetail}
         options={{ title: "Ledger Detail" }}
+      />
+      <Stack.Screen
+        name="Invitation List"
+        component={InvitationsList}
+        options={{ title: "Invitation List" }}
       />
     </Stack.Navigator>
   );

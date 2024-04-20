@@ -1,12 +1,11 @@
 import axios from "axios";
 
-// const BASE_URL = "http://localhost:5000";
 const BASE_URL =
   "https://4393-2404-7c00-41-846-7cdb-b1bf-a06a-20ab.ngrok-free.app";
-// "react-native-web": "~0.19.6"
-export const getUserList = async () => {
+export const getUserList = async (ledger_id = "") => {
   try {
-    const URL = `${BASE_URL}/users/`;
+    console.log("Fetching users for ledger:", ledger_id);
+    const URL = `${BASE_URL}/users/?ledger_id=${ledger_id}`;
     const response = await axios(URL, {
       method: "GET",
       withCredentials: true,
@@ -86,6 +85,86 @@ export const getLedgerList = async () => {
     return { success: true, data: data };
   } catch (error) {
     console.error("Error fetching ledgers:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getLedgerDetails = async (ledgerId) => {
+  try {
+    const URL = `${BASE_URL}/ledgers/${ledgerId}/`;
+    const response = await axios(URL, {
+      method: "GET",
+      withCredentials: true,
+    });
+    const data = response.data;
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Error fetching ledger details:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const inviteUsersToLedger = async (ledgerId, emailList) => {
+  try {
+    const URL = `${BASE_URL}/ledgers/${ledgerId}/invite/`;
+    const formdata = {
+      email_list: emailList,
+    };
+    const response = await axios.post(URL, formdata, {
+      withCredentials: true,
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error inviting users to ledger:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getInvitations = async (user_id) => {
+  try {
+    const URL = `${BASE_URL}/ledgers/invitations/${user_id}`;
+    const response = await axios(URL, {
+      method: "GET",
+      withCredentials: true,
+    });
+    const data = response.data;
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Error fetching invitations:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const acceptInvitation = async (invitationId, user_id, ledger_id) => {
+  try {
+    const URL = `${BASE_URL}/ledgers/invite/accept/`;
+    const formdata = {
+      user_id: user_id,
+      ledger_id: ledger_id,
+    };
+    const response = await axios.post(URL, formdata, {
+      withCredentials: true,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error accepting invitation:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const rejectInvitation = async (invitationId, user_id, ledger_id) => {
+  try {
+    const URL = `${BASE_URL}/ledgers/invite/reject/`;
+    const formdata = {
+      user_id: user_id,
+      ledger_id: ledger_id,
+    };
+    const response = await axios.post(URL, formdata, {
+      withCredentials: true,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error rejecting invitation:", error.message);
     return { success: false, error: error.message };
   }
 };

@@ -72,6 +72,10 @@ const Header = ({ navigation }) => {
             onPress={() => handleOptionClick("Show Ledgers")}
           />
           <MenuItem
+            text="Invitation List"
+            onPress={() => handleOptionClick("Invitation List")}
+          />
+          <MenuItem
             text="Expense Analytics"
             onPress={() => handleOptionClick("Expense Summary Chart")}
           />

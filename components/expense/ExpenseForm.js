@@ -102,8 +102,7 @@ const ExpenseForm = () => {
 
   // Function to fetch user data
   const fetchUsers = async () => {
-    console.log("Entering fetchUsers");
-    const res = await getUserList();
+    const res = await getUserList(selectedLedger);
     if (res.success) {
       setUsers(res.data);
     } else {
