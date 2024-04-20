@@ -6,6 +6,7 @@ import {
   Button,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "../../context/AuthContext";
@@ -16,28 +17,38 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const { isAuthenticated, setIsAuthenticated, currentUser, setCurrentUser } =
-    useContext(AuthContext);
 
+  // Get access to AuthContext
+  const { setIsAuthenticated, setCurrentUser } = useContext(AuthContext);
+
+  // Function to handle the login process
   const handleLogin = async () => {
     setLoading(true);
     const formData = {
-      email: email,
-      password: password,
+      email,
+      password,
     };
-    const res = await authenticateUser(formData);
-    if (res.success) {
-      setIsAuthenticated(true);
-      setCurrentUser(res.data);
+
+    try {
+      const res = await authenticateUser(formData);
+      if (res.success) {
+        setIsAuthenticated(true);
+        setCurrentUser(res.data);
+        setLoading(false);
+        // Navigate to the desired page after successful login
+        // navigation.navigate("HomeScreen", { screen: "Home" });
+      } else {
+        Alert.alert("Login Failed", res.error);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      Alert.alert("Error", "An error occurred during login. Please try again.");
       setLoading(false);
-      return;
     }
-    setError(true);
-    Alert.alert("Error", res.error);
-    setLoading(false);
   };
 
+  // Loading indicator
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -46,6 +57,7 @@ const LoginPage = () => {
     );
   }
 
+  // Render the login form
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
