@@ -30,6 +30,11 @@ function TabNavigator() {
         options={{ tabBarLabel: "Add Expense" }}
       />
       <Tab.Screen
+        name="Ledger Form"
+        component={LedgerForm}
+        options={{ tabBarLabel: "Add Ledger" }}
+      />
+      <Tab.Screen
         name="Expense Summary"
         component={ExpenseSummaryList}
         options={{ tabBarLabel: "Expense Summary" }}
@@ -38,11 +43,6 @@ function TabNavigator() {
         name="Expense List"
         component={ExpenseList}
         options={{ tabBarLabel: "Expense List" }}
-      />
-      <Tab.Screen
-        name="Ledger Form"
-        component={LedgerForm}
-        options={{ tabBarLabel: "Add Ledger" }}
       />
     </Tab.Navigator>
   );
