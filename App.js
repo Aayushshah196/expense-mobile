@@ -15,6 +15,7 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
+import LedgerDetail from "./components/ledger/LedgerDetails";
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -72,6 +73,11 @@ function HomeStack() {
         component={LedgerList}
         options={{ title: "Ledgers" }}
       />
+      <Stack.Screen
+        name="Ledger Detail"
+        component={LedgerDetail}
+        options={{ title: "Ledger Detail" }}
+      />
     </Stack.Navigator>
   );
 }
@@ -96,7 +102,7 @@ function AuthStack() {
 
 // App component to conditionally render navigation based on authentication status
 const Main = () => {
-  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
   return (
     <View style={styles.app}>
