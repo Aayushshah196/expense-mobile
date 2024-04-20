@@ -2,9 +2,9 @@ import axios from "axios";
 
 // const BASE_URL = "http://localhost:5000";
 const BASE_URL =
-  "https://20b2-2404-7c00-44-551e-6329-664c-f3db-7b96.ngrok-free.app";
+  "https://4393-2404-7c00-41-846-7cdb-b1bf-a06a-20ab.ngrok-free.app";
 // "react-native-web": "~0.19.6"
-export const get_user_list = async () => {
+export const getUserList = async () => {
   try {
     const URL = `${BASE_URL}/users/`;
     const response = await axios(URL, {
@@ -34,7 +34,7 @@ export const getExpenseList = async () => {
   }
 };
 
-export const create_expense_item = async (expenseData) => {
+export const createExpenseItem = async (expenseData) => {
   try {
     const URL = `${BASE_URL}/expenses/`;
     const response = await axios.post(URL, expenseData, {
@@ -61,7 +61,7 @@ export const deleteExpense = async (expenseId) => {
   }
 };
 
-export const create_ledger = async (ledgerData) => {
+export const createLedger = async (ledgerData) => {
   try {
     const URL = `${BASE_URL}/ledgers/`;
     const response = await axios.post(URL, ledgerData, {
@@ -120,15 +120,12 @@ const get_date_range = () => {
 export const getExpenseSummary = async (start_date, end_date) => {
   try {
     const { start_date, end_date } = get_date_range();
-    console.log("Start Date: ", start_date);
-    console.log("End Date: ", end_date);
     const URL = `${BASE_URL}/report/?start_date=${start_date}&end_date=${end_date}`;
     const response = await axios(URL, {
       method: "GET",
       withCredentials: true,
     });
     const data = response.data;
-    console.log("Expense data: ", data);
     return { success: true, data: data };
   } catch (error) {
     console.error("Error fetching expenses:", error.message);
@@ -142,7 +139,6 @@ export const createNewUser = async (userData) => {
     const response = await axios.post(URL, userData, {
       withCredentials: true,
     });
-    console.log("Response:", response);
     const data = response.data;
     return { success: true, data: data };
   } catch (error) {
@@ -158,7 +154,6 @@ export const authenticateUser = async (userData) => {
       withCredentials: true,
     });
     let success = true;
-    console.log("Response:", response);
     const data = response.data.data;
     success = response.data.status;
     return { success: success, data: data };

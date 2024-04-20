@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, ActivityIndicator } from "react-native";
-import { get_user_list } from "../requests";
+import { getUserList } from "../requests";
 
 const UserList = () => {
   const [loading, setLoading] = useState(true);
@@ -12,7 +12,7 @@ const UserList = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       console.log("fetching users");
-      res = await get_user_list();
+      res = await getUserList();
       if (res.success) {
         setUsers(res.data);
         setLoading(false);

@@ -85,6 +85,7 @@ const ExpenseForm = () => {
   useFocusEffect(
     React.useCallback(() => {
       const fetchData = async () => {
+        console.log("Expense Form on focus. Fetching data...");
         setLoading(true);
         try {
           await fetchUsers();
@@ -101,22 +102,25 @@ const ExpenseForm = () => {
 
   // Function to fetch user data
   const fetchUsers = async () => {
+    console.log("Entering fetchUsers");
     const res = await getUserList();
     if (res.success) {
       setUsers(res.data);
     } else {
+      console.error("Error in fetchUsers:", res.error);
       throw new Error(res.error);
     }
   };
 
   // Function to fetch ledger data
   const fetchLedgers = async () => {
+    console.log("Entering fetchLedgers");
     const res = await getLedgerList();
     if (res.success) {
       setLedgers(res.data);
       setSelectedLedger(res.data[0]?.id || "");
-      console.log("Ledgers", res.data);
     } else {
+      console.error("Error in fetchLedgers:", res.error);
       throw new Error(res.error);
     }
   };
