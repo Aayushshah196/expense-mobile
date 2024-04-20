@@ -9,187 +9,188 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useRoute } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import MultiSelect from "react-native-multiple-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import {
-  get_user_list,
-  create_expense_item,
-  getLedgerList,
-} from "../../requests";
+import { getUserList, createExpenseItem, getLedgerList } from "../../requests";
+import NoLedgersWarning from "../warnings/NoLedgerWarning";
+import { AuthContext } from "../../context/AuthContext";
 
 const ExpenseForm = () => {
+  const { currentUser } = useContext(AuthContext);
   const [remarks, setRemarks] = useState("");
   const [amount, setAmount] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [dateObject, setDateObject] = useState(new Date());
   const [date, setDate] = useState(getDateString());
+  const [dateObject, setDateObject] = useState(new Date());
   const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState([]);
-  const [error, setError] = useState("");
-  const [currentUser, setCurrentUser] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [ledgers, setLedgers] = useState([]);
+  const [selectedLedger, setSelectedLedger] = useState("");
+  const [error, setError] = useState("");
 
-  function getRandomUser(userList) {
-    setCurrentUser(userList[Math.floor(Math.random() * userList.length)].id);
-  }
-
+  // Helper function to format date
   function getDateString(datetimeString = new Date().toISOString()) {
     const datetime = new Date(datetimeString);
     const year = datetime.getFullYear();
-    const month = String(datetime.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const month = String(datetime.getMonth() + 1).padStart(2, "0");
     const day = String(datetime.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
+
+  // Handle date change
   const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
+    const currentDate = selectedDate || dateObject;
     setShowDatePicker(false);
     setDateObject(currentDate);
-    const dateString = getDateString(currentDate);
-    setDate(dateString);
+    setDate(getDateString(currentDate));
   };
 
+  // Function to handle form submission
   const handleSubmit = async () => {
     setUploading(true);
-    const split_amount =
-      selectedUsers.length === 0 ? 0 : amount / selectedUsers.length;
+    try {
+      const splitAmount =
+        selectedUsers.length > 0 ? amount / selectedUsers.length : 0;
+      const newExpense = {
+        date,
+        remarks,
+        amount,
+        users: selectedUsers,
+        split: splitAmount,
+        paid_by: currentUser.id,
+        ledger_id: selectedLedger,
+      };
 
-    const newExpense = {
-      date: date,
-      remarks: remarks,
-      amount: amount,
-      users: selectedUsers,
-      split: split_amount,
-      paid_by: currentUser,
-      ledger_id: selectedLedger,
-    };
-    await create_expense_item(newExpense);
-    setUploading(false);
-    setDateObject(new Date());
+      await createExpenseItem(newExpense);
+      resetForm();
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Function to reset the form
+  const resetForm = () => {
+    setDate(getDateString());
     setRemarks("");
     setAmount("");
     setSelectedUsers([]);
   };
 
-  const { params } = useRoute();
-  useEffect(() => {
-    console.log("params", params);
-    setDateObject(params?.date ? new Date(params.date) : new Date());
-    setRemarks(params?.remarks || "");
-    setAmount(params?.amount || "");
-  }, [params]);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      console.log("fetching users");
-      res = await get_user_list();
-      if (res.success) {
-        setUsers(res.data);
-        getRandomUser(res.data);
-        setLoading(false);
-      } else {
-        setLoading(false);
-        setError(res.error);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  const [ledgers, setLedgers] = useState([]);
-  const [selectedLedger, setSelectedLedger] = useState("");
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      console.log("fetching users");
-      res = await getLedgerList();
-      if (res.success) {
-        setLedgers(res.data);
-        if (res.data.length > 0) {
-          setSelectedLedger(res.data[0].id);
+  // Fetch data each time the page is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          await fetchUsers();
+          await fetchLedgers();
+        } catch (error) {
+          setError(error.message);
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
-      } else {
-        setLoading(false);
-        setError(res.error);
-      }
-    };
+      };
+      fetchData();
+    }, [])
+  );
 
-    fetchUsers();
-  }, []);
+  // Function to fetch user data
+  const fetchUsers = async () => {
+    const res = await getUserList();
+    if (res.success) {
+      setUsers(res.data);
+    } else {
+      throw new Error(res.error);
+    }
+  };
 
-  if (loading | uploading) {
+  // Function to fetch ledger data
+  const fetchLedgers = async () => {
+    const res = await getLedgerList();
+    if (res.success) {
+      setLedgers(res.data);
+      setSelectedLedger(res.data[0]?.id || "");
+      console.log("Ledgers", res.data);
+    } else {
+      throw new Error(res.error);
+    }
+  };
+
+  if (loading || uploading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={styles.loader}>
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.datePickerContainer}>
-        <Button title="Select Date" onPress={() => setShowDatePicker(true)} />
-        {showDatePicker && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={dateObject}
-            mode="date"
-            display="default"
-            onChange={handleDateChange}
+    <>
+      {ledgers.length === 0 && <NoLedgersWarning />}
+      {ledgers.length > 0 && (
+        <View style={styles.container}>
+          <View style={styles.datePickerContainer}>
+            <Button
+              title="Select Date"
+              onPress={() => setShowDatePicker(true)}
+            />
+            {showDatePicker && (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={dateObject}
+                mode="date"
+                display="default"
+                onChange={handleDateChange}
+              />
+            )}
+          </View>
+          <Text style={styles.dateText}>{date}</Text>
+          <Picker
+            selectedValue={selectedLedger}
+            onValueChange={(itemValue) => setSelectedLedger(itemValue)}
+            style={styles.input}
+          >
+            {ledgers.map((ledger, index) => (
+              <Picker.Item key={index} label={ledger.name} value={ledger.id} />
+            ))}
+          </Picker>
+          <TextInput
+            style={styles.input}
+            placeholder="Remarks"
+            value={remarks}
+            onChangeText={(text) => setRemarks(text)}
           />
-        )}
-      </View>
-      <Text style={styles.paragraph}>{date}</Text>
-      <Picker
-        selectedValue={selectedLedger}
-        onValueChange={(itemValue, itemIndex) => setSelectedLedger(itemValue)}
-        style={styles.input}
-      >
-        {ledgers &&
-          ledgers.map((ledger, index) => (
-            <Picker.Item key={index} label={ledger.name} value={ledger.id} />
-          ))}
-      </Picker>
-      <TextInput
-        style={styles.input}
-        placeholder="Remarks"
-        value={remarks}
-        onChangeText={(text) => setRemarks(text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Amount"
-        value={amount}
-        onChangeText={(text) => setAmount(text)}
-        inputMode="numeric"
-      />
-      {users && (
-        <MultiSelect
-          hideTags
-          items={users}
-          uniqueKey="id"
-          onSelectedItemsChange={setSelectedUsers}
-          selectedItems={selectedUsers}
-          selectText="Pick Users"
-          searchInputPlaceholderText="Search Users..."
-          onChangeInput={(text) => console.log(text)}
-          tagRemoveIconColor="#CCC"
-          tagBorderColor="#CCC"
-          tagTextColor="#CCC"
-          selectedItemTextColor="#CCC"
-          selectedItemIconColor="#CCC"
-          itemTextColor="#000"
-          displayKey="name"
-          searchInputStyle={{ color: "#CCC" }}
-          submitButtonColor="#CCC"
-          style={styles.input}
-        />
+          <TextInput
+            style={styles.input}
+            placeholder="Amount"
+            value={amount}
+            onChangeText={(text) => setAmount(text)}
+            keyboardType="numeric"
+          />
+          {users && (
+            <MultiSelect
+              hideTags
+              items={users}
+              uniqueKey="id"
+              onSelectedItemsChange={setSelectedUsers}
+              selectedItems={selectedUsers}
+              selectText="Pick Users"
+              searchInputPlaceholderText="Search Users..."
+              style={styles.input}
+            />
+          )}
+          <Pressable onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Add Expense</Text>
+          </Pressable>
+          {error && <Text style={styles.errorText}>{error}</Text>}
+        </View>
       )}
-      <Pressable title="Add Expense" onPress={handleSubmit} />
-      <Button title="Add Expense" onPress={handleSubmit} />
-    </View>
+    </>
   );
 };
 
@@ -197,13 +198,13 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
   },
-  paragraph: {
+  datePickerContainer: {
+    marginBottom: 10,
+  },
+  dateText: {
     fontSize: 16,
     marginBottom: 10,
     textAlign: "center",
-  },
-  datePickerContainer: {
-    marginBottom: 10,
   },
   input: {
     height: 40,
@@ -212,17 +213,23 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
   },
-  picker: {
-    height: 40,
-    width: "100%",
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonText: {
+    textAlign: "center",
+    padding: 10,
+    backgroundColor: "#007BFF",
+    color: "#FFF",
+    borderRadius: 5,
+  },
+  errorText: {
+    color: "red",
+    marginTop: 10,
+    textAlign: "center",
   },
 });
 
 export default ExpenseForm;
-
-// 49193853743-cvc6rj0emde1ieeatgmas4hoqr4i8894.apps.googleusercontent.com
-// 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
