@@ -17,7 +17,8 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, setIsAuthenticated, currentUser, setCurrentUser } =
+    useContext(AuthContext);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -28,14 +29,12 @@ const LoginPage = () => {
     const res = await authenticateUser(formData);
     if (res.success) {
       setIsAuthenticated(true);
+      setCurrentUser(res.data);
       setLoading(false);
-      // navigation.navigate("HomeScreen", { screen: "Home" });
       return;
-    } else {
-      setError(true);
-      Alert.alert("Error", res.error);
     }
-    // Perform login operation here
+    setError(true);
+    Alert.alert("Error", res.error);
     setLoading(false);
   };
 
