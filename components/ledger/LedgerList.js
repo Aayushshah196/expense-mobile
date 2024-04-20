@@ -33,14 +33,16 @@ const LedgerList = () => {
   }, []);
 
   const handleEditExpense = (expense) => {
-    console.log("Edit Ledger", ledger);
+    navigation.navigate("Ledger Detail", {
+      ledger_id: expense?.ledger_id || "",
+    });
   };
 
   const handleDeleteExpense = async (ledgerId) => {
     try {
       // Call delete expense API function
       await deleteLedger(ledgerId);
-      Alert.alert("Error", "deleted ledger");
+      Alert.alert("Success", "Ledger has been deleted.");
       // Update expense list after deletion
       const updatedList = ledgerList.filter((ledger) => ledger.id !== ledgerId);
       setLedgerList(updatedList);
