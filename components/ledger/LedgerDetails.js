@@ -1,39 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
   TextInput,
   Modal,
   Button,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useRoute } from "@react-navigation/native";
+import { inviteUsersToLedger, getLedgerDetails } from "../../requests";
 
 const initialLedger = {
   name: "Project Alpha",
-  createdDate: "2024-04-19",
+  created_at: "2024-04-19",
   owner: "John Doe",
   numActiveUsers: 3,
   numTotalUsers: 5,
-  activeUserList: ["Alice Smith", "Bob Johnson", "Chris Lee"],
-  invitedUserList: [
+  active_users: ["Alice Smith", "Bob Johnson", "Chris Lee"],
+  invited_users: [
     "Alice Smith",
     "Bob Johnson",
     "Chris Lee",
     "David Wilson",
     "Eve Adams",
   ],
-  totalExpense: 2500.0,
-  userExpense: 800.0,
+  total_expense: 2500.0,
+  user_expense: 800.0,
 };
 
 const LedgerDetail = () => {
-  const [ledger, setLedger] = useState(initialLedger);
+  const [ledger, setLedger] = useState({});
+  const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [invitationInput, setInvitationInput] = useState("");
+  const { ledger_id } = useRoute().params;
+  useEffect(() => {
+    const fetchLedgerDetails = async () => {
+      console.log("Fetching ledger details for ledger ID:", ledger_id);
+      const res = await getLedgerDetails(ledger_id);
+      if (res.success) {
+        setLedger(res.data);
+        // setLedger(initialLedger);
+      } else {
+        console.error("Error fetching ledger details:", res.error);
+      }
+      setLoading(false);
+    };
+    fetchLedgerDetails();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -46,33 +73,35 @@ const LedgerDetail = () => {
   };
 
   const handleRemoveActiveUser = (index) => {
-    const newActiveUserList = [...ledger.activeUserList];
+    const newActiveUserList = [...ledger.active_users];
     newActiveUserList.splice(index, 1);
     setLedger((prevLedger) => ({
       ...prevLedger,
-      activeUserList: newActiveUserList,
-      numActiveUsers: newActiveUserList.length,
+      active_users: newActiveUserList,
     }));
   };
 
   const handleRemoveInvitedUser = (index) => {
-    const newInvitedUserList = [...ledger.invitedUserList];
+    const newInvitedUserList = [...ledger.invited_users];
     newInvitedUserList.splice(index, 1);
     setLedger((prevLedger) => ({
       ...prevLedger,
-      invitedUserList: newInvitedUserList,
-      numTotalUsers: newInvitedUserList.length,
+      invited_users: newInvitedUserList,
     }));
   };
 
-  const handleInviteUsers = () => {
-    const newUsers = invitationInput.split(",").map((user) => user.trim());
-    setLedger((prevLedger) => ({
-      ...prevLedger,
-      invitedUserList: [...prevLedger.invitedUserList, ...newUsers],
-      numTotalUsers: prevLedger.invitedUserList.length + newUsers.length,
-    }));
-    // Clear the input field and hide the modal
+  const handleInviteUsers = async () => {
+    const invited_email_list = invitationInput
+      .split(",")
+      .map((user) => user.trim());
+
+    const res = await inviteUsersToLedger(ledger.id, invited_email_list);
+    if (res.success) {
+      console.log("Users invited successfully");
+      setLedger(res.data);
+    } else {
+      console.error("Error inviting users:", res.error);
+    }
     setInvitationInput("");
     setIsModalVisible(false);
   };
@@ -135,7 +164,7 @@ const LedgerDetail = () => {
       )}
 
       <Text style={styles.label}>Created Date:</Text>
-      <Text style={styles.value}>{ledger.createdDate}</Text>
+      <Text style={styles.value}>{ledger.created_at}</Text>
 
       <Text style={styles.label}>Owner:</Text>
       {isEditing ? (
@@ -151,15 +180,15 @@ const LedgerDetail = () => {
       )}
 
       <Text style={styles.label}>Number of Active Users:</Text>
-      <Text style={styles.value}>{ledger.numActiveUsers}</Text>
+      <Text style={styles.value}>{ledger.active_users.length}</Text>
 
-      <Text style={styles.label}>Number of Total Users:</Text>
-      <Text style={styles.value}>{ledger.numTotalUsers}</Text>
+      <Text style={styles.label}>Number of Invited Users:</Text>
+      <Text style={styles.value}>{ledger.invited_users.length}</Text>
 
       {/* Active User List */}
       <Text style={styles.label}>Active User List:</Text>
       <FlatList
-        data={ledger.activeUserList}
+        data={ledger.active_users}
         renderItem={(props) =>
           renderUserItem("active", handleRemoveActiveUser, props)
         }
@@ -170,7 +199,7 @@ const LedgerDetail = () => {
       {/* Invited User List */}
       <Text style={styles.label}>Invited User List:</Text>
       <FlatList
-        data={ledger.invitedUserList}
+        data={ledger.invited_users}
         renderItem={(props) =>
           renderUserItem("invited", handleRemoveInvitedUser, props)
         }
@@ -180,11 +209,11 @@ const LedgerDetail = () => {
 
       {/* Total Expense */}
       <Text style={styles.label}>Total Expense in Ledger:</Text>
-      <Text style={styles.value}>${ledger.totalExpense.toFixed(2)}</Text>
+      <Text style={styles.value}>${ledger.total_expense.toFixed(2)}</Text>
 
       {/* User's Total Expense */}
       <Text style={styles.label}>User's Total Expense in Ledger:</Text>
-      <Text style={styles.value}>${ledger.userExpense.toFixed(2)}</Text>
+      <Text style={styles.value}>${ledger.user_expense.toFixed(2)}</Text>
     </View>
   );
 
@@ -235,6 +264,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: "#f7f7f7",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerSection: {
     flexDirection: "row",

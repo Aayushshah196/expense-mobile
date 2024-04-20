@@ -24,7 +24,7 @@ const LedgerForm = () => {
     const formData = {
       name: ledgerName,
       owner: currentUser.id, // Use currentUser from AuthContext
-      live_users: [currentUser.id],
+      active_users: [currentUser.id],
     };
 
     setUploading(true);

@@ -32,9 +32,10 @@ const LedgerList = () => {
     fetchLedgerList();
   }, []);
 
-  const handleEditExpense = (expense) => {
+  const handleEditExpense = (ledger) => {
+    console.log("Editing ledger:", ledger, ledger?.id);
     navigation.navigate("Ledger Detail", {
-      ledger_id: expense?.ledger_id || "",
+      ledger_id: ledger?.id || "",
     });
   };
 
@@ -75,7 +76,7 @@ const LedgerList = () => {
         renderItem={({ item }) => (
           <LedgerCard
             ledgerName={item.name}
-            activeUsers={item.live_users}
+            activeUsers={item.active_users}
             invitedUsers={item.invited_users}
             onEdit={() => handleEditExpense(item)}
             onDelete={() => handleDeleteExpense(item.id)}
