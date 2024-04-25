@@ -1,30 +1,35 @@
 import axios from "axios";
 
 const BASE_URL =
-  "https://4393-2404-7c00-41-846-7cdb-b1bf-a06a-20ab.ngrok-free.app";
+  "https://81bb-2404-7c00-44-6738-26b-cff0-1c14-2f7c.ngrok-free.app/v2";
+
 export const getUserList = async (ledger_id = "") => {
   try {
-    console.log("Fetching users for ledger:", ledger_id);
     const URL = `${BASE_URL}/users/?ledger_id=${ledger_id}`;
     const response = await axios(URL, {
       method: "GET",
       withCredentials: true,
     });
     const data = response.data;
-    return { success: true, data: data };
+
+    if (data.error_code>0){
+      return { success:false, error: data.error_message};
+    }
+    return { success: true, data: data.data , message: data.message};
   } catch (error) {
     console.error("Error fetching users:", error.message);
     return { success: false, error: error.message };
   }
 };
 
-export const getExpenseList = async () => {
+export const getExpenseList = async (user_id) => {
   try {
-    const URL = `${BASE_URL}/expenses/`;
+    const URL = `${BASE_URL}/expenses/user/${user_id}`;
     const response = await axios(URL, {
       method: "GET",
       withCredentials: true,
     });
+    console.log("Expenses fetched for user:", user_id," | ", response.data)
     const data = response.data;
     return { success: true, data: data };
   } catch (error) {
@@ -74,9 +79,9 @@ export const createLedger = async (ledgerData) => {
   }
 };
 
-export const getLedgerList = async () => {
+export const getLedgerList = async (user_id) => {
   try {
-    const URL = `${BASE_URL}/ledgers/`;
+    const URL = `${BASE_URL}/ledgers/user/${user_id}`;
     const response = await axios(URL, {
       method: "GET",
       withCredentials: true,
@@ -97,6 +102,7 @@ export const getLedgerDetails = async (ledgerId) => {
       withCredentials: true,
     });
     const data = response.data;
+    console.log("Ledger details fetched:", data)
     return { success: true, data: data };
   } catch (error) {
     console.error("Error fetching ledger details:", error.message);
@@ -106,10 +112,12 @@ export const getLedgerDetails = async (ledgerId) => {
 
 export const inviteUsersToLedger = async (ledgerId, emailList) => {
   try {
-    const URL = `${BASE_URL}/ledgers/${ledgerId}/invite/`;
+    // const URL = `${BASE_URL}/ledgers/${ledgerId}/invite/`;
+    const URL = `${BASE_URL}/ledgers/invite_users/${ledgerId}/`;
     const formdata = {
       email_list: emailList,
     };
+    console.log("Inviting users to ledger:", formdata);
     const response = await axios.post(URL, formdata, {
       withCredentials: true,
     });
@@ -123,11 +131,14 @@ export const inviteUsersToLedger = async (ledgerId, emailList) => {
 export const getInvitations = async (user_id) => {
   try {
     const URL = `${BASE_URL}/ledgers/invitations/${user_id}`;
+    console.log("Fetching invitations for user:", user_id, "CAlling Endpoint: ", URL);
+
     const response = await axios(URL, {
       method: "GET",
       withCredentials: true,
     });
     const data = response.data;
+    console.log("Invitations fetched:", data)
     return { success: true, data: data };
   } catch (error) {
     console.error("Error fetching invitations:", error.message);
@@ -137,7 +148,8 @@ export const getInvitations = async (user_id) => {
 
 export const acceptInvitation = async (invitationId, user_id, ledger_id) => {
   try {
-    const URL = `${BASE_URL}/ledgers/invite/accept/`;
+    // const URL = `${BASE_URL}/ledgers/invite/accept/`;
+    const URL = `${BASE_URL}/ledgers/accept_invitation`;
     const formdata = {
       user_id: user_id,
       ledger_id: ledger_id,
@@ -154,7 +166,8 @@ export const acceptInvitation = async (invitationId, user_id, ledger_id) => {
 
 export const rejectInvitation = async (invitationId, user_id, ledger_id) => {
   try {
-    const URL = `${BASE_URL}/ledgers/invite/reject/`;
+    // const URL = `${BASE_URL}/ledgers/invite/reject/`;
+    const URL = `${BASE_URL}/ledgers/reject_invitation/`;
     const formdata = {
       user_id: user_id,
       ledger_id: ledger_id,
@@ -196,10 +209,11 @@ const get_date_range = () => {
   };
 };
 
-export const getExpenseSummary = async (start_date, end_date) => {
+export const getExpenseSummary = async (user_id, start_date, end_date) => {
   try {
     const { start_date, end_date } = get_date_range();
-    const URL = `${BASE_URL}/report/?start_date=${start_date}&end_date=${end_date}`;
+    // const URL = `${BASE_URL}/report/?start_date=${start_date}&end_date=${end_date}`;
+    const URL = `${BASE_URL}/expenses/summary/${user_id}/`;
     const response = await axios(URL, {
       method: "GET",
       withCredentials: true,

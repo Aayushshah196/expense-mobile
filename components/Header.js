@@ -13,7 +13,6 @@ import { AuthContext } from "../context/AuthContext";
 
 const Header = ({ navigation }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { performLogout } = useContext(AuthContext);
 
   const toggleMenu = () => {
@@ -21,9 +20,7 @@ const Header = ({ navigation }) => {
   };
 
   const handleOptionClick = (option) => {
-    if (option === "Popup Modal") {
-      setIsPopupOpen(true);
-    } else if (option === "Logout") {
+    if (option === "Logout") {
       const status = performLogout();
     } else {
       navigation.navigate(option);
@@ -31,10 +28,6 @@ const Header = ({ navigation }) => {
 
     // Close the menu after an option is clicked
     setIsMenuOpen(false);
-  };
-
-  const closePopup = () => {
-    setIsPopupOpen(false);
   };
 
   const closeMenu = () => {
@@ -60,14 +53,6 @@ const Header = ({ navigation }) => {
       {isMenuOpen && (
         <View style={styles.menuContainer}>
           <MenuItem
-            text="Popup Modal"
-            onPress={() => handleOptionClick("Popup Modal")}
-          />
-          <MenuItem
-            text="UserList"
-            onPress={() => handleOptionClick("UserList")}
-          />
-          <MenuItem
             text="Ledgers List"
             onPress={() => handleOptionClick("Show Ledgers")}
           />
@@ -76,22 +61,16 @@ const Header = ({ navigation }) => {
             onPress={() => handleOptionClick("Invitation List")}
           />
           <MenuItem
+            text="Payment List"
+            onPress={() => handleOptionClick("Payment List")}
+          />
+          <MenuItem
             text="Expense Analytics"
             onPress={() => handleOptionClick("Expense Summary Chart")}
           />
           <MenuItem text="Logout" onPress={() => handleOptionClick("Logout")} />
         </View>
       )}
-
-      {/* Popup Modal */}
-      <Modal visible={isPopupOpen} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.popup}>
-            <Text>This is a popup</Text>
-            <Button title="Close" onPress={closePopup} />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };

@@ -17,6 +17,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 import LedgerDetail from "./components/ledger/LedgerDetails";
 import InvitationsList from "./components/ledger/InvitationScreen";
+import ChartComponent from "./components/Charts/Chart";
+import PaymentList from "./components/payments/PaymentList";
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -46,6 +48,11 @@ function TabNavigator() {
         component={ExpenseList}
         options={{ tabBarLabel: "Expense List" }}
       />
+      <Tab.Screen
+        name="Chart"
+        component={ChartComponent}
+        options={{ tabBarLabel: "Chart" }}
+      />
     </Tab.Navigator>
   );
 }
@@ -65,11 +72,6 @@ function HomeStack() {
         options={{ title: "Expense Chart" }}
       />
       <Stack.Screen
-        name="UserList"
-        component={UserList}
-        options={{ title: "Users" }}
-      />
-      <Stack.Screen
         name="Show Ledgers"
         component={LedgerList}
         options={{ title: "Ledgers" }}
@@ -83,6 +85,11 @@ function HomeStack() {
         name="Invitation List"
         component={InvitationsList}
         options={{ title: "Invitation List" }}
+      />
+      <Stack.Screen
+        name="Payment List"
+        component={PaymentList}
+        options={{ title: "Payment List" }}
       />
     </Stack.Navigator>
   );
@@ -144,3 +151,10 @@ const styles = StyleSheet.create({
 });
 
 export default App;
+
+
+{/* <Stack.Screen
+name="UserList"
+component={UserList}
+options={{ title: "Users" }}
+/> */}
