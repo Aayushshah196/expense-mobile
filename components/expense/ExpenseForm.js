@@ -7,6 +7,7 @@ import {
   Pressable,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useFocusEffect } from "@react-navigation/native";
@@ -30,6 +31,15 @@ const ExpenseForm = () => {
   const [ledgers, setLedgers] = useState([]);
   const [selectedLedger, setSelectedLedger] = useState("");
   const [error, setError] = useState("");
+  const [expenseTypes, setExpenseTypes] = useState([
+    "transportation",
+    "food",
+    "lodging",
+    "entertainment",
+    "other",
+  ]); // State for expense types
+  const [selectedExpenseType, setSelectedExpenseType] = useState(""); // State for selected expense type
+  const [newExpenseType, setNewExpenseType] = useState(""); // State for new expense type
 
   // Helper function to format date
   function getDateString(datetimeString = new Date().toISOString()) {
@@ -48,6 +58,17 @@ const ExpenseForm = () => {
     setDate(getDateString(currentDate));
   };
 
+  // Function to add a new expense type
+  const addNewExpenseType = () => {
+    if (newExpenseType && !expenseTypes.includes(newExpenseType)) {
+      setExpenseTypes([...expenseTypes, newExpenseType]);
+      setSelectedExpenseType(newExpenseType);
+      setNewExpenseType(""); // Reset the new expense type input field
+    } else {
+      Alert.alert("Error", "Expense type already exists or is empty.");
+    }
+  };
+
   // Function to handle form submission
   const handleSubmit = async () => {
     setUploading(true);
@@ -63,7 +84,6 @@ const ExpenseForm = () => {
         paid_by: currentUser.id,
         ledger_id: selectedLedger,
       };
-
       await createExpenseItem(newExpense);
       resetForm();
     } catch (error) {
@@ -85,11 +105,13 @@ const ExpenseForm = () => {
   useFocusEffect(
     React.useCallback(() => {
       const fetchData = async () => {
-        console.log("Expense Form on focus. Fetching data...");
         setLoading(true);
         try {
-          await fetchUsers();
-          await fetchLedgers();
+          const ledger_id = await fetchLedgers();
+          if (ledger_id === "") {
+            return;
+          }
+          await fetchUsers(ledger_id);
         } catch (error) {
           setError(error.message);
         } finally {
@@ -101,26 +123,37 @@ const ExpenseForm = () => {
   );
 
   // Function to fetch user data
-  const fetchUsers = async () => {
-    const res = await getUserList(selectedLedger);
+  const fetchUsers = async (ledger_id = "") => {
+    const ledger_to_request = ledger_id || selectedLedger;
+    if (!ledger_to_request) {
+      console.log("No ledger found to fetch users");
+      return;
+    }
+    const res = await getUserList(ledger_to_request);
     if (res.success) {
       setUsers(res.data);
     } else {
       console.error("Error in fetchUsers:", res.error);
-      throw new Error(res.error);
+      return Alert.alert("Error", res.error);
+      // throw new Error(res.error);
     }
   };
 
   // Function to fetch ledger data
   const fetchLedgers = async () => {
-    console.log("Entering fetchLedgers");
-    const res = await getLedgerList();
+    const res = await getLedgerList(currentUser?.id);
     if (res.success) {
       setLedgers(res.data);
-      setSelectedLedger(res.data[0]?.id || "");
+      if (res.data.length === 0) {
+        console.log("No ledgers found");
+        return "";
+      }
+      setSelectedLedger(res.data[0].id || "");
+      return res.data[0].id || "";
     } else {
       console.error("Error in fetchLedgers:", res.error);
-      throw new Error(res.error);
+      return Alert.alert("Error", res.error);
+      // throw new Error(res.error);
     }
   };
 
@@ -153,15 +186,58 @@ const ExpenseForm = () => {
             )}
           </View>
           <Text style={styles.dateText}>{date}</Text>
-          <Picker
-            selectedValue={selectedLedger}
-            onValueChange={(itemValue) => setSelectedLedger(itemValue)}
-            style={styles.input}
-          >
-            {ledgers.map((ledger, index) => (
-              <Picker.Item key={index} label={ledger.name} value={ledger.id} />
-            ))}
-          </Picker>
+          <View style={styles.pickerWrapper}>
+            {/* Form label */}
+            <View style={styles.labelContainer}>
+              <Text style={styles.labelText}>Select Ledger:</Text>
+            </View>
+
+            {/* Picker */}
+            <Picker
+              selectedValue={selectedLedger}
+              onValueChange={(itemValue) => setSelectedLedger(itemValue)}
+              style={styles.input}
+            >
+              {ledgers.map((ledger, index) => (
+                <Picker.Item
+                  key={index}
+                  label={ledger.name}
+                  value={ledger.id}
+                />
+              ))}
+            </Picker>
+          </View>
+
+          <View style={styles.pickerWrapper}>
+            {/* Form label */}
+            <View style={styles.labelContainer}>
+              <Text style={styles.labelText}>Select Expense Type:</Text>
+            </View>
+
+            <Picker
+              selectedValue={selectedExpenseType}
+              onValueChange={(itemValue) => setSelectedExpenseType(itemValue)}
+              style={styles.input}
+            >
+              {expenseTypes.map((type, index) => (
+                <Picker.Item key={index} label={type} value={type} />
+              ))}
+            </Picker>
+            {selectedExpenseType === "other" && (
+              <>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Expense Type"
+                  value={newExpenseType}
+                  onChangeText={(text) => setNewExpenseType(text)}
+                />
+                <Pressable onPress={addNewExpenseType}>
+                  <Text style={styles.buttonText}>New Expense Type</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+
           <TextInput
             style={styles.input}
             placeholder="Remarks"
@@ -175,6 +251,7 @@ const ExpenseForm = () => {
             onChangeText={(text) => setAmount(text)}
             keyboardType="numeric"
           />
+
           {users && (
             <MultiSelect
               hideTags
@@ -232,6 +309,24 @@ const styles = StyleSheet.create({
     color: "red",
     marginTop: 10,
     textAlign: "center",
+  },
+  newExpenseTypeInput: {
+    flex: 1,
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginHorizontal: 10,
+    paddingHorizontal: 10,
+  },
+  pickerWrapper: {
+    marginBottom: 10, // Space below the picker and above other form fields
+  },
+  labelContainer: {
+    marginBottom: 5, // Space between label and picker
+  },
+  labelText: {
+    fontSize: 16, // Adjust the size of the label text as desired
+    fontWeight: "bold", // Adjust the weight of the label text as desired
   },
 });
 
