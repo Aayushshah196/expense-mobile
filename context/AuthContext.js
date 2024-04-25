@@ -26,7 +26,6 @@ export const AuthProvider = ({ children }) => {
       const userDataString = await AsyncStorage.getItem("currentUser");
       if (userDataString) {
         const userData = JSON.parse(userDataString);
-        console.log("Initial user data:", userData);
         setCurrentUser(userData);
         setIsAuthenticated(true);
       }
