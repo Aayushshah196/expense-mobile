@@ -15,24 +15,31 @@ import {
 } from "../../requests";
 import { AuthContext } from "../../context/AuthContext";
 
+// TODO: Replace the invitation.id with invitation.ledger_name (if passed in the invitation object)
+
 const InvitationCard = ({ invitation, onAccept, onReject }) => {
   return (
     <View style={styles.card}>
       {/* Display ledger name */}
-      <Text style={styles.ledgerName}>{invitation.name}</Text>
+      <Text style={styles.ledgerName}>Ledger Name: {invitation.ledger.name}</Text>
+
+      <Text style={styles.date}>Invited On: {invitation.created_at}</Text>
+      <Text style={styles.date}>Expiration Date: {invitation.expiry_date}</Text>
+
 
       {/* Accept and Reject buttons */}
       <View style={styles.buttonContainer}>
         <Button
           title="Accept"
           onPress={() =>
-            onAccept(invitation.id, invitation.user_id, invitation.ledger_id)
+            onAccept(invitation.id, invitation.user_id, invitation.ledger.id)
           }
         />
+
         <Button
           title="Reject"
           onPress={() =>
-            onReject(invitation.id, invitation.user_id, invitation.ledger_id)
+            onReject(invitation.id, invitation.user_id, invitation.ledger.id)
           }
           style={styles.rejectButton}
         />
@@ -134,6 +141,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
     borderRadius: 8,
     marginBottom: 8,
+  },
+  date: {
+    marginBottom: 5,
   },
   ledgerName: {
     fontSize: 16,

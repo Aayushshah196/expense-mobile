@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,26 +11,8 @@ import {
   Button,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useFocusEffect } from "@react-navigation/native";
 import { inviteUsersToLedger, getLedgerDetails } from "../../requests";
-
-const initialLedger = {
-  name: "Project Alpha",
-  created_at: "2024-04-19",
-  owner: "John Doe",
-  numActiveUsers: 3,
-  numTotalUsers: 5,
-  active_users: ["Alice Smith", "Bob Johnson", "Chris Lee"],
-  invited_users: [
-    "Alice Smith",
-    "Bob Johnson",
-    "Chris Lee",
-    "David Wilson",
-    "Eve Adams",
-  ],
-  total_expense: 2500.0,
-  user_expense: 800.0,
-};
 
 const LedgerDetail = () => {
   const [ledger, setLedger] = useState({});
@@ -39,20 +21,23 @@ const LedgerDetail = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [invitationInput, setInvitationInput] = useState("");
   const { ledger_id } = useRoute().params;
-  useEffect(() => {
-    const fetchLedgerDetails = async () => {
-      console.log("Fetching ledger details for ledger ID:", ledger_id);
-      const res = await getLedgerDetails(ledger_id);
-      if (res.success) {
-        setLedger(res.data);
-        // setLedger(initialLedger);
-      } else {
-        console.error("Error fetching ledger details:", res.error);
-      }
-      setLoading(false);
-    };
-    fetchLedgerDetails();
-  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchLedgerDetails = async () => {
+        console.log("Fetching ledger details for ledger ID:", ledger_id);
+        const res = await getLedgerDetails(ledger_id);
+        if (res.success) {
+          setLedger(res.data);
+          // setLedger(initialLedger);
+        } else {
+          console.error("Error fetching ledger details:", res.error);
+        }
+        setLoading(false);
+      };
+      fetchLedgerDetails();
+    }, [])
+  );
 
   if (loading) {
     return (
@@ -108,7 +93,7 @@ const LedgerDetail = () => {
 
   const renderUserItem = (listType, handleRemove, { item, index }) => (
     <View style={styles.userItem}>
-      <Text>{item}</Text>
+      <Text>{item.name}</Text>
       {isEditing && (
         <TouchableOpacity
           onPress={() => handleRemove(index)}
@@ -167,17 +152,7 @@ const LedgerDetail = () => {
       <Text style={styles.value}>{ledger.created_at}</Text>
 
       <Text style={styles.label}>Owner:</Text>
-      {isEditing ? (
-        <TextInput
-          style={styles.input}
-          value={ledger.owner}
-          onChangeText={(text) =>
-            setLedger((prevLedger) => ({ ...prevLedger, owner: text }))
-          }
-        />
-      ) : (
-        <Text style={styles.value}>{ledger.owner}</Text>
-      )}
+        <Text style={styles.value}>{ledger.owner.name}</Text>
 
       <Text style={styles.label}>Number of Active Users:</Text>
       <Text style={styles.value}>{ledger.active_users.length}</Text>
@@ -206,14 +181,6 @@ const LedgerDetail = () => {
         keyExtractor={(item, index) => index.toString()}
         style={styles.list}
       />
-
-      {/* Total Expense */}
-      <Text style={styles.label}>Total Expense in Ledger:</Text>
-      <Text style={styles.value}>${ledger.total_expense.toFixed(2)}</Text>
-
-      {/* User's Total Expense */}
-      <Text style={styles.label}>User's Total Expense in Ledger:</Text>
-      <Text style={styles.value}>${ledger.user_expense.toFixed(2)}</Text>
     </View>
   );
 

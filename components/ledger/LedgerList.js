@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import LedgerCard from "./LedgerCard";
 import { getLedgerList, deleteLedger } from "../../requests";
 import { useNavigation } from "@react-navigation/native";
@@ -10,16 +10,18 @@ import {
   Text,
   Alert,
 } from "react-native";
+import { AuthContext } from "../../context/AuthContext";
 
 const LedgerList = () => {
   const [loading, setLoading] = useState(true);
   const [ledgerList, setLedgerList] = useState([]);
   const [error, setError] = useState("");
   const navigation = useNavigation();
+  const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchLedgerList = async () => {
-      res = await getLedgerList();
+      res = await getLedgerList(currentUser?.id);
       if (res.success) {
         setLedgerList(res.data);
         setLoading(false);
@@ -76,8 +78,8 @@ const LedgerList = () => {
         renderItem={({ item }) => (
           <LedgerCard
             ledgerName={item.name}
-            activeUsers={item.active_users}
-            invitedUsers={item.invited_users}
+            activeUsers={item?.active_users || []}
+            invitedUsers={item?.invited_users || []}
             onEdit={() => handleEditExpense(item)}
             onDelete={() => handleDeleteExpense(item.id)}
           />
