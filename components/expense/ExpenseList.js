@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import ExpenseCard from "./ExpenseCard";
 import { getExpenseList, deleteExpense } from "../../requests";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { AuthContext } from "../../context/AuthContext";
 import {
   View,
   StyleSheet,
@@ -29,34 +30,28 @@ const ExpenseList = () => {
     live: null,
     ledger: null,
   });
+  const { currentUser } = useContext(AuthContext);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const fetchExpenseList = async () => {
-      res = await getExpenseList();
-      if (res.success) {
-        setExpenseList(res.data);
-        setLoading(false);
-      } else {
-        setLoading(false);
-        setError(res.error);
-      }
-    };
-
-    fetchExpenseList();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchExpenseList = async () => {
+        res = await getExpenseList(currentUser.id);
+        if (res.success) {
+          setExpenseList(res.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          setError(res.error);
+        }
+      };
+  
+      fetchExpenseList();
+    }, [])
+  );
 
   useEffect(() => {
     function handleNumberOfDaysChange() {
-      console.log("numberOfDays changed:", filters.numberOfDays);
-      // Perform any action you want to take when numberOfDays changes
-      // For example, you might want to update other parts of the state based on the new numberOfDays
-      // Adjust the startDate and endDate based on the new numberOfDays
-      console.log(
-        "startDate:",
-        getDateString(getDateBasedOnOffset(filters.numberOfDays))
-      );
-      console.log("endDate:", getDateString());
       setFilters((prevFilters) => ({
         ...prevFilters,
         startDate: getDateString(getDateBasedOnOffset(filters.numberOfDays)),
@@ -74,16 +69,8 @@ const ExpenseList = () => {
 
   const applyFilters = () => {
     let filtered = expenseList;
-    console.log("Applying filters:", filters);
-    console.log("Expense list:", expenseList);
-
     // Filter by date range
     if (filters.startDate && filters.endDate) {
-      console.log(
-        "Filtering by date range:",
-        filters.startDate,
-        filters.endDate
-      );
       filtered = filtered.filter(
         (expense) =>
           new Date(expense.date) >= new Date(filters.startDate) &&
@@ -277,12 +264,13 @@ const ExpenseList = () => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <ExpenseCard
-            ledger_id={item?.ledger_id || ""}
+            ledger={item.ledger}
             date={item.date}
             remarks={item.remarks}
             split={item.split}
             amount={item.amount}
             users={item.users}
+            paid_by={item.paid_by}
             onEdit={() => handleEditExpense(item)}
             onDelete={() => handleDeleteExpense(item.id)}
           />

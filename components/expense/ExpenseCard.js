@@ -2,23 +2,31 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 const ExpenseCard = ({
-  ledger_id,
+  ledger,
   date,
   remarks,
+  paid_by,
   split,
   amount,
   users,
   onEdit,
   onDelete,
 }) => {
+
+  function get_user_list(users) {
+    let user_list = users.map((user) => user.name).join(", ");
+    return user_list;
+  }
+
   return (
     <View style={styles.card}>
-      <Text style={styles.date}>{ledger_id}</Text>
+      <Text style={styles.date}>{ledger.name}</Text>
       <Text style={styles.date}>{date}</Text>
-      <Text style={styles.remarks}>{remarks}</Text>
-      <Text style={styles.amount}>Amount: {split}</Text>
-      <Text style={styles.amount}>Amount: {amount}</Text>
-      <Text style={styles.users}>Users: {users.join(", ")}</Text>
+      <Text style={styles.remarks}>Remarks: {remarks}</Text>
+      <Text style={styles.amount}>Your Share: {split}</Text>
+      <Text style={styles.amount}>Total Amount: {amount}</Text>
+      <Text style={styles.users}>Paid By: {paid_by.name}</Text>
+      <Text style={styles.users}>Users: { get_user_list(users)}</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           onPress={onEdit}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -6,17 +6,19 @@ import {
   ActivityIndicator,
   FlatList,
 } from "react-native";
+import { AuthContext } from "../../context/AuthContext";
 import { getExpenseSummary } from "../../requests";
 
 const ExpenseSummaryList = () => {
   const [loading, setLoading] = useState(true);
   const [expenseSummary, setExpenseSummary] = useState([]);
   const [error, setError] = useState("");
+  const {currentUser} = useContext(AuthContext);
 
   useEffect(() => {
     const fetchExpenseSummary = async () => {
       console.log("fetching expense summary");
-      res = await getExpenseSummary();
+      res = await getExpenseSummary(currentUser.id, "", "");
       if (res.success) {
         setExpenseSummary(res.data);
         setLoading(false);
@@ -43,17 +45,10 @@ const ExpenseSummaryList = () => {
       keyExtractor={(item, index) => index}
       renderItem={({ item }) => (
         <View style={styles.itemContainer}>
-          <Text style={styles.userId}>{item.user_id}</Text>
-          <Text>Total Paid: {item.total_paid_amount}</Text>
-          <Text>Total Expenditure: {item.total_expenditure}</Text>
-          <Text
-            style={{
-              color:
-                item.to_pay < 0 ? "green" : item.to_pay > 0 ? "red" : "black",
-            }}
-          >
-            To Pay: {item.to_pay}
-          </Text>
+          <Text style={styles.userId}>Ledger: {item.ledger.name}</Text>
+          <Text>Total Expenditure: {item.total}</Text>
+          <Text style={styles.receivables}>Total Receivables: {item.receive}</Text>
+          <Text style={styles.payments}>Total Payables: {item.pay}</Text>
         </View>
       )}
     />
@@ -68,6 +63,12 @@ const styles = StyleSheet.create({
   },
   userId: {
     fontWeight: "bold",
+  },
+  payments: {
+    color: "red",
+  },
+  receivables: {
+    color: "green",
   },
 });
 
