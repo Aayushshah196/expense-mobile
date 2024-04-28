@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const BASE_URL =
-  "https://81bb-2404-7c00-44-6738-26b-cff0-1c14-2f7c.ngrok-free.app/v2";
+  "https://305c-2404-7c00-44-a73-9887-cfc9-da37-aaa5.ngrok-free.app/v2";
 
 export const getUserList = async (ledger_id = "") => {
   try {
@@ -12,10 +12,10 @@ export const getUserList = async (ledger_id = "") => {
     });
     const data = response.data;
 
-    if (data.error_code>0){
-      return { success:false, error: data.error_message};
+    if (data.error_code > 0) {
+      return { success: false, error: data.error_message };
     }
-    return { success: true, data: data.data , message: data.message};
+    return { success: true, data: data.data, message: data.message };
   } catch (error) {
     console.error("Error fetching users:", error.message);
     return { success: false, error: error.message };
@@ -29,7 +29,7 @@ export const getExpenseList = async (user_id) => {
       method: "GET",
       withCredentials: true,
     });
-    console.log("Expenses fetched for user:", user_id," | ", response.data)
+    console.log("Expenses fetched for user:", user_id, " | ", response.data);
     const data = response.data;
     return { success: true, data: data };
   } catch (error) {
@@ -102,7 +102,7 @@ export const getLedgerDetails = async (ledgerId) => {
       withCredentials: true,
     });
     const data = response.data;
-    console.log("Ledger details fetched:", data)
+    console.log("Ledger details fetched:", data);
     return { success: true, data: data };
   } catch (error) {
     console.error("Error fetching ledger details:", error.message);
@@ -121,7 +121,11 @@ export const inviteUsersToLedger = async (ledgerId, emailList) => {
     const response = await axios.post(URL, formdata, {
       withCredentials: true,
     });
-    return { success: true, data: response.data };
+    return {
+      success: true,
+      data: response.data.data,
+      message: response.data.message,
+    };
   } catch (error) {
     console.error("Error inviting users to ledger:", error.message);
     return { success: false, error: error.message };
@@ -131,14 +135,19 @@ export const inviteUsersToLedger = async (ledgerId, emailList) => {
 export const getInvitations = async (user_id) => {
   try {
     const URL = `${BASE_URL}/ledgers/invitations/${user_id}`;
-    console.log("Fetching invitations for user:", user_id, "CAlling Endpoint: ", URL);
+    console.log(
+      "Fetching invitations for user:",
+      user_id,
+      "CAlling Endpoint: ",
+      URL
+    );
 
     const response = await axios(URL, {
       method: "GET",
       withCredentials: true,
     });
     const data = response.data;
-    console.log("Invitations fetched:", data)
+    console.log("Invitations fetched:", data);
     return { success: true, data: data };
   } catch (error) {
     console.error("Error fetching invitations:", error.message);
@@ -252,6 +261,51 @@ export const authenticateUser = async (userData) => {
     return { success: success, data: data };
   } catch (error) {
     console.error("Error creating user:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getSummaryByLedger = async (user_id) => {
+  try {
+    const URL = `${BASE_URL}/expenses/summary/ledger/${user_id}/`;
+    const response = await axios(URL, {
+      method: "GET",
+      withCredentials: true,
+    });
+    const data = response.data;
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Error fetching expenses:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getSummaryByType = async (user_id) => {
+  try {
+    const URL = `${BASE_URL}/expenses/summary/type/${user_id}/`;
+    const response = await axios(URL, {
+      method: "GET",
+      withCredentials: true,
+    });
+    const data = response.data;
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Error fetching expenses:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getSummaryByDate = async (user_id) => {
+  try {
+    const URL = `${BASE_URL}/expenses/summary/date/${user_id}/`;
+    const response = await axios(URL, {
+      method: "GET",
+      withCredentials: true,
+    });
+    const data = response.data;
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Error fetching expenses:", error.message);
     return { success: false, error: error.message };
   }
 };
