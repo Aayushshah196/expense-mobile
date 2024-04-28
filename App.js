@@ -19,6 +19,7 @@ import LedgerDetail from "./components/ledger/LedgerDetails";
 import InvitationsList from "./components/ledger/InvitationScreen";
 import ChartComponent from "./components/Charts/Chart";
 import PaymentList from "./components/payments/PaymentList";
+import ForgotPasswordScreen from "./components/auth/ForgotPassword";
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -105,6 +106,11 @@ function AuthStack() {
         options={{ title: "Login" }}
       />
       <Stack.Screen
+        name="ForgotPasswordScreen"
+        component={ForgotPasswordScreen}
+        options={{ title: "Forgot Password" }}
+      />
+      <Stack.Screen
         name="SignUpPage"
         component={SignUpPage}
         options={{ title: "Sign Up" }}
@@ -152,9 +158,10 @@ const styles = StyleSheet.create({
 
 export default App;
 
-
-{/* <Stack.Screen
+{
+  /* <Stack.Screen
 name="UserList"
 component={UserList}
 options={{ title: "Users" }}
-/> */}
+/> */
+}

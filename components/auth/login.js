@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "../../context/AuthContext";
@@ -77,6 +78,11 @@ const LoginPage = () => {
         secureTextEntry
       />
       <Button title="Login" onPress={handleLogin} />
+      <TouchableOpacity
+        onPress={() => navigation.navigate("ForgotPasswordScreen")}
+      >
+        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+      </TouchableOpacity>
       <Text
         style={styles.linkText}
         onPress={() => navigation.navigate("SignUpPage")}
@@ -114,6 +120,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
     textAlign: "center",
     color: "blue",
+  },
+  forgotPasswordText: {
+    marginTop: 15,
+    color: "#007BFF",
+    textAlign: "center",
   },
 });
 
