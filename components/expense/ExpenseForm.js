@@ -76,14 +76,16 @@ const ExpenseForm = () => {
       const splitAmount =
         selectedUsers.length > 0 ? amount / selectedUsers.length : 0;
       const newExpense = {
-        date,
-        remarks,
-        amount,
+        date: date,
+        remarks: remarks,
+        amount: amount,
+        expense_type: newExpenseType || selectedExpenseType,
         users: selectedUsers,
         split: splitAmount,
         paid_by: currentUser.id,
         ledger_id: selectedLedger,
       };
+      console.log("New Expense:", newExpense);
       await createExpenseItem(newExpense);
       resetForm();
     } catch (error) {
@@ -99,6 +101,7 @@ const ExpenseForm = () => {
     setRemarks("");
     setAmount("");
     setSelectedUsers([]);
+    setNewExpenseType("");
   };
 
   // Fetch data each time the page is focused
@@ -224,17 +227,12 @@ const ExpenseForm = () => {
               ))}
             </Picker>
             {selectedExpenseType === "other" && (
-              <>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Expense Type"
-                  value={newExpenseType}
-                  onChangeText={(text) => setNewExpenseType(text)}
-                />
-                <Pressable onPress={addNewExpenseType}>
-                  <Text style={styles.buttonText}>New Expense Type</Text>
-                </Pressable>
-              </>
+              <TextInput
+                style={styles.input}
+                placeholder="New Expense Type"
+                value={newExpenseType}
+                onChangeText={(text) => setNewExpenseType(text)}
+              />
             )}
           </View>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   FlatList,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { AuthContext } from "../../context/AuthContext";
 import { getExpenseSummary } from "../../requests";
 
@@ -13,23 +14,25 @@ const ExpenseSummaryList = () => {
   const [loading, setLoading] = useState(true);
   const [expenseSummary, setExpenseSummary] = useState([]);
   const [error, setError] = useState("");
-  const {currentUser} = useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
 
-  useEffect(() => {
-    const fetchExpenseSummary = async () => {
-      console.log("fetching expense summary");
-      res = await getExpenseSummary(currentUser.id, "", "");
-      if (res.success) {
-        setExpenseSummary(res.data);
-        setLoading(false);
-      } else {
-        setLoading(false);
-        setError(res.error);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchExpenseSummary = async () => {
+        console.log("fetching expense summary");
+        res = await getExpenseSummary(currentUser.id, "", "");
+        if (res.success) {
+          setExpenseSummary(res.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          setError(res.error);
+        }
+      };
 
-    fetchExpenseSummary();
-  }, []);
+      fetchExpenseSummary();
+    }, [])
+  );
 
   if (loading) {
     return (
@@ -47,7 +50,9 @@ const ExpenseSummaryList = () => {
         <View style={styles.itemContainer}>
           <Text style={styles.userId}>Ledger: {item.ledger.name}</Text>
           <Text>Total Expenditure: {item.total}</Text>
-          <Text style={styles.receivables}>Total Receivables: {item.receive}</Text>
+          <Text style={styles.receivables}>
+            Total Receivables: {item.receive}
+          </Text>
           <Text style={styles.payments}>Total Payables: {item.pay}</Text>
         </View>
       )}
