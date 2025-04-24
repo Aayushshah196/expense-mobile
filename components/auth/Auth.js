@@ -15,14 +15,6 @@
 //   const [userInfo, setUserInfo] = useState();
 
 //   const configureGoogleSignIn = () => {
-//     GoogleSignin.configure({
-//       webClientId:
-//         "49193853743-cvc6rj0emde1ieeatgmas4hoqr4i8894.apps.googleusercontent.com",
-//       androidClientId:
-//         "72307864794-v5k7ua1dkhnb3f8s1ccnru8b5gfa70ck.apps.googleusercontent.com",
-//       iosClientId:
-//         "72307864794-1vuq2apibl4tg6on2f2nmoq5vul3ltvq.apps.googleusercontent.com",
-//     });
 //   };
 
 //   useEffect(() => {
